@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Hello World</title>
+  <script src="https://pixijs.download/release/pixi.min.js"></script>
+</head>
+<body>
+  <script type="text/javascript">
+
+    //Create a Pixi Application
+    const app = new PIXI.Application({width: 400, height: 256});
+    const gameContainer = app.stage;
+    const WIDTH = app.renderer.view.width;
+    const HEIGHT = app.renderer.view.height;
+    const IMAGEPATH = "sprites/Arcade - Pac-Man - General Sprites.png"; 
+    
+    function setup(imagePath){
+      console.log('hi');
+      // let sprite = new PIXI.Sprite(
+      //   PIXI.loader.resources[imagePath].texture
+      // );
+    };
+
+    function loadImage(imagePath, callBack) {
+      PIXI.loader.add(imagePath)
+      //.load(callBack);
+      console.log(PIXI.loader);
+    };
+
+
+    //Add the canvas that Pixi automatically created for you to the HTML document
+    document.body.appendChild(app.view);
+
+    loadImage("sprites/Arcade - Pac-Man - General Sprites.png", setup("sprites/Arcade - Pac-Man - General Sprites.png"));
+  
+  </script>
+</body>
+</html>
