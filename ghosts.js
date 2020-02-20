@@ -1,10 +1,11 @@
 class Ghost {
-    constructor(color, type) {    
+    constructor(color, type, centerPoint) {    
       this.color = color;
       this.eaten = False;
       this.type = type;
       this.mode = 'scatter'; //initial mode for all ghosts
       this.canBeEaten = False;
+      this.centerPoint = centerPoint;
     }
 }
 

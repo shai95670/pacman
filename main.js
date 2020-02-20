@@ -1,3 +1,7 @@
+import Pacman from './pacman.js';
+import Loader from './loader/assetLoader.js';
+import MazeMap from './tileMap/map.js';
+import Pill from './pills.js';
 /*
   The main idea is going to be to add a maze sprize to a game container 
   and to that same container im going to add the pacman, ghost, pills
@@ -11,42 +15,131 @@
   2. pacman and pills through each sprites center point
   3. pacman and maze through pacmans center point ?
   4. ghosts and maze through ghosts center point ?
+
+  TODO:
+  1. Animate pac man and make it move - done
+     a. animate pacman death
+  2. Animate maze -
+  3. animate pills in maze
+  4. animate ghosts in maze
+     a. animate eatble ghosts
+     b. animate eaten ghosts      
 */
+const canvas = document.querySelector('canvas'); // 300x400
+const ctx = canvas.getContext('2d');
+const SCALE = 1;
+const WIDTH = 16;
+const HEIGHT = 16;
+const SCALED_WIDTH = SCALE * WIDTH;
+const SCALED_HEIGHT = SCALE * HEIGHT;
+const CYCLE_LOOP = [0, 1, 2];
+const MOVEMENT_SPEED = 2;
+const CANVAS_WIDTH = canvas.width;
+const CANVAS_HEIGHT = canvas.height;
+let food = [];
 
-//Create a Pixi Application
-const app = new PIXI.Application({width: 244, height: 288});
-const gameContainer = app.stage;
-const WIDTH = app.renderer.view.width;
-const HEIGHT = app.renderer.view.height;
-const IMAGEPATH = "sprites/Arcade - Pac-Man - General Sprites.png"; 
+let currentLoopIndex = 0;
+let frameCount = 0;
+let pacman = new Pacman();
+let loader = new Loader();
+let maze = new MazeMap(ctx);
 
-//Setup Pixi and load the texture atlas files - call the `setup`
-//function when they've loaded
-function setup() {
-    //Initialize the game sprites, set the game `state` to `play`
-    //and start the 'gameLoop'
-    //Create Ghosts
-    //Create pacman
-    //Create Pills
-    //Create maze
-    //Create GameOver 
-    //Create scoreBox
+/*
+ 0 - right
+ 1 - left
+ 2 - up
+ 3 - down
+*/ 
+let currentDirection = 0;
+let keyPresses = {};
+
+
+loader.loadImage('pacman', './sprites/pacman.png')
+loader.loadImage('maze', './sprites/Arcade - Pac-Man - Maze Parts.png')
+
+function drawFrame(image, frameX, frameY, canvasX, canvasY) {
+  ctx.drawImage(image,
+                frameX * WIDTH, frameY * HEIGHT, WIDTH, HEIGHT,
+                canvasX, canvasY, SCALED_WIDTH, SCALED_HEIGHT);
 }
 
-function gameLoop(delta) {
-    //Runs the current game `state` in a loop and renders the sprites
+function createFood(){
+  for(let row = 0; row < maze.mapHeight; row++){
+    for(let column = 0; column < maze.mapWidth; column++){
+          if(maze.VisualRepresentation[((column*maze.mapWidth)+row)] === 2){
+            food.push(new Pill(ctx, 30, maze.LogicalRepresentation[((column*maze.mapWidth)+row)].x + (maze.tileWidth / 2), maze.LogicalRepresentation[((column*maze.mapWidth)+row)].y + (maze.tileHeight / 2), 2)); 
+          } 
+    }
+  }
 }
 
-function play(delta) {
-    //All the game logic goes here
+function drawFood(){
+  for(let index = 0; index < food.length; index++){
+    food[index].draw();
+  }
 }
 
-function end() {
-    //All the code that should run at the end of the game
+createFood();
+console.log(food);
+
+function keyDownListener(event) {
+  keyPresses[event.key] = true;
 }
 
-//The game's helper functions:
-//`keyboard`, `hitTestRectangle`, `contain` and `randomInt`
+function keyUpListener(event) {
+  keyPresses[event.key] = false;
+}
 
-//Add the canvas that Pixi automatically created for you to the HTML document
-document.body.appendChild(app.view);
+function clearScreen(){
+  ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+}
+
+
+function gameLoop() {
+  clearScreen();
+  let hasMoved = false;
+  if (keyPresses.w) {
+  // up
+      pacman.y -= MOVEMENT_SPEED
+      currentDirection = 2;
+      hasMoved = true;
+  } else if (keyPresses.d) {
+  // right
+      pacman.x += MOVEMENT_SPEED;
+      currentDirection = 0;
+      hasMoved = true;
+  } else if (keyPresses.a) {
+  // left
+      pacman.x -= MOVEMENT_SPEED;
+      currentDirection = 1;
+      hasMoved = true;
+  } else if (keyPresses.s) {
+  // down
+      pacman.y += MOVEMENT_SPEED
+      currentDirection = 3;
+      hasMoved = true;
+  }
+  
+  if (hasMoved) {
+      frameCount++;
+      if (frameCount >= 12) {
+          frameCount = 0;
+          currentLoopIndex++;
+          if (currentLoopIndex >= CYCLE_LOOP.length) {
+              currentLoopIndex = 0;
+          }
+      }
+  }
+  // draw maze
+  maze.drawMaze();
+  // draw food at each 0 value in the array
+  drawFood();
+  //draw pacman
+  drawFrame(loader.getImage('pacman'),CYCLE_LOOP[currentLoopIndex], currentDirection, pacman.x, pacman.y); 
+  window.requestAnimationFrame(gameLoop);
+}
+
+
+gameLoop();
+window.addEventListener('keydown', keyDownListener, false);
+window.addEventListener('keyup', keyUpListener, false);
