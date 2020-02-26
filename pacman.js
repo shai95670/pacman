@@ -2,8 +2,8 @@ export default class Pacman {
     constructor(){
         this.energized = false;
         this.life = 3;
-        this.x = 0;
-        this.y = 0;
-        this.movementSpeed = 2;
+        this.x = 16;
+        this.y = 16;
+        this.movementSpeed = 16;
     }
 }

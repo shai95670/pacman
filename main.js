@@ -66,8 +66,14 @@ function drawFrame(image, frameX, frameY, canvasX, canvasY) {
 function createFood(){
   for(let row = 0; row < maze.mapHeight; row++){
     for(let column = 0; column < maze.mapWidth; column++){
-          if(maze.VisualRepresentation[((column*maze.mapWidth)+row)] === 2){
-            food.push(new Pill(ctx, 30, maze.LogicalRepresentation[((column*maze.mapWidth)+row)].x + (maze.tileWidth / 2), maze.LogicalRepresentation[((column*maze.mapWidth)+row)].y + (maze.tileHeight / 2), 2)); 
+          if(maze.VisualRepresentation[row][column] === 2){
+            food.push(new Pill(ctx,
+               30,
+               (column * maze.tileWidth) + (maze.tileWidth / 2),
+               (row * maze.tileHeight) + (maze.tileHeight / 2), 2,
+               column * maze.tileWidth,
+               row * maze.tileHeight
+            ))
           } 
     }
   }
@@ -79,9 +85,6 @@ function drawFood(){
   }
 }
 
-createFood();
-console.log(food);
-
 function keyDownListener(event) {
   keyPresses[event.key] = true;
 }
@@ -92,6 +95,33 @@ function keyUpListener(event) {
 
 function clearScreen(){
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+}
+
+function removeFoodObject(x, y){
+  console.log(x, y);
+  food.find(foodObject => {
+   return foodObject.cellX === x && foodObject.cellY === y
+  })
+}
+
+function handleFoodCollisionTasks(){
+  for(let row = 0; row < maze.mapHeight; row++){
+    for(let column = 0; column < maze.mapWidth; column++){
+     if ((pacman.x >= maze.LogicalRepresentation[row][column].x &&
+         pacman.x <= maze.LogicalRepresentation[row][column].x + maze.tileWidth) &&
+         (pacman.y >= maze.LogicalRepresentation[row][column].y &&
+         pacman.y <= maze.LogicalRepresentation[row][column].y + maze.tileHeight) &&
+         maze.LogicalRepresentation[row][column].value === 2) {
+         // delete food object from the food list
+         removeFoodObject(maze.LogicalRepresentation[row][column].x, maze.LogicalRepresentation[row][column].y);
+         // clean visual rep
+         maze.changeValue(row, column, 'visual', 0); 
+         // initiate logical value to 0
+         maze.changeValue(row, column, 'logical', 0);
+         console.log(food);
+     }   
+    }   
+  } 
 }
 
 
@@ -135,11 +165,13 @@ function gameLoop() {
   // draw food at each 0 value in the array
   drawFood();
   //draw pacman
-  drawFrame(loader.getImage('pacman'),CYCLE_LOOP[currentLoopIndex], currentDirection, pacman.x, pacman.y); 
+  drawFrame(loader.getImage('pacman'),CYCLE_LOOP[currentLoopIndex], currentDirection, pacman.x, pacman.y);
+  handleFoodCollisionTasks();
   window.requestAnimationFrame(gameLoop);
 }
 
-
+createFood();
+console.log(food);
 gameLoop();
 window.addEventListener('keydown', keyDownListener, false);
 window.addEventListener('keyup', keyUpListener, false);

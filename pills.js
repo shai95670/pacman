@@ -1,10 +1,12 @@
 export default class Pill {
-    constructor(twoDimensionalCanvas, pointsWorth, x, y, radius){
+    constructor(twoDimensionalCanvas, pointsWorth, x, y, radius, cellX, cellY){
       this.twoDimensionalCanvas = twoDimensionalCanvas;
       this.pointsWorth = pointsWorth;
       this.x = x;
       this.y = y;
       this.radius = radius;
+      this.cellX = cellX;
+      this.cellY = cellY;
     }
     draw(){
         this.twoDimensionalCanvas.fillStyle = 'pink';
