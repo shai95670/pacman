@@ -27,16 +27,15 @@ import Pill from './pills.js';
 */
 const canvas = document.querySelector('canvas'); // 300x400
 const ctx = canvas.getContext('2d');
-const SCALE = 1;
+const SCALE = 0.8;
 const WIDTH = 16;
 const HEIGHT = 16;
 const SCALED_WIDTH = SCALE * WIDTH;
 const SCALED_HEIGHT = SCALE * HEIGHT;
 const CYCLE_LOOP = [0, 1, 2];
-const MOVEMENT_SPEED = 2;
 const CANVAS_WIDTH = canvas.width;
 const CANVAS_HEIGHT = canvas.height;
-let food = [];
+
 
 let currentLoopIndex = 0;
 let frameCount = 0;
@@ -55,7 +54,6 @@ let keyPresses = {};
 
 
 loader.loadImage('pacman', './sprites/pacman.png')
-loader.loadImage('maze', './sprites/Arcade - Pac-Man - Maze Parts.png')
 
 function drawFrame(image, frameX, frameY, canvasX, canvasY) {
   ctx.drawImage(image,
@@ -67,21 +65,25 @@ function createFood(){
   for(let row = 0; row < maze.mapHeight; row++){
     for(let column = 0; column < maze.mapWidth; column++){
           if(maze.VisualRepresentation[row][column] === 2){
-            food.push(new Pill(ctx,
+            maze.LogicalRepresentation[row][column] = new Pill(ctx,
                30,
                (column * maze.tileWidth) + (maze.tileWidth / 2),
-               (row * maze.tileHeight) + (maze.tileHeight / 2), 2,
+               (row * maze.tileHeight) + (maze.tileHeight / 2), 1,
                column * maze.tileWidth,
                row * maze.tileHeight
-            ))
+            )
           } 
     }
   }
 }
 
 function drawFood(){
-  for(let index = 0; index < food.length; index++){
-    food[index].draw();
+  for(let row = 0; row < maze.mapHeight; row++){
+    for(let column = 0; column < maze.mapWidth; column++){
+      if(maze.LogicalRepresentation[row][column].hasOwnProperty('radius')){
+        maze.LogicalRepresentation[row][column].draw();
+      } 
+    }
   }
 }
 
@@ -100,7 +102,7 @@ function clearScreen(){
 function removeFoodObject(x, y){
   console.log(x, y);
   food.find(foodObject => {
-   return foodObject.cellX === x && foodObject.cellY === y
+   return foodObject.cellX === x * maze.tileWidth && foodObject.cellY === y * maze.tileHeight
   })
 }
 
@@ -111,14 +113,13 @@ function handleFoodCollisionTasks(){
          pacman.x <= maze.LogicalRepresentation[row][column].x + maze.tileWidth) &&
          (pacman.y >= maze.LogicalRepresentation[row][column].y &&
          pacman.y <= maze.LogicalRepresentation[row][column].y + maze.tileHeight) &&
-         maze.LogicalRepresentation[row][column].value === 2) {
-         // delete food object from the food list
-         removeFoodObject(maze.LogicalRepresentation[row][column].x, maze.LogicalRepresentation[row][column].y);
+         maze.LogicalRepresentation[row][column].hasOwnProperty('radius')) {
+         console.log('food collision');
          // clean visual rep
          maze.changeValue(row, column, 'visual', 0); 
          // initiate logical value to 0
          maze.changeValue(row, column, 'logical', 0);
-         console.log(food);
+         console.log(maze.VisualRepresentation);
      }   
     }   
   } 
@@ -130,22 +131,22 @@ function gameLoop() {
   let hasMoved = false;
   if (keyPresses.w) {
   // up
-      pacman.y -= MOVEMENT_SPEED
+      pacman.y -= pacman.movementSpeed;
       currentDirection = 2;
       hasMoved = true;
   } else if (keyPresses.d) {
   // right
-      pacman.x += MOVEMENT_SPEED;
+      pacman.x +=  pacman.movementSpeed;
       currentDirection = 0;
       hasMoved = true;
   } else if (keyPresses.a) {
   // left
-      pacman.x -= MOVEMENT_SPEED;
+      pacman.x -=  pacman.movementSpeed;
       currentDirection = 1;
       hasMoved = true;
   } else if (keyPresses.s) {
   // down
-      pacman.y += MOVEMENT_SPEED
+      pacman.y +=  pacman.movementSpeed;
       currentDirection = 3;
       hasMoved = true;
   }
@@ -171,7 +172,6 @@ function gameLoop() {
 }
 
 createFood();
-console.log(food);
 gameLoop();
 window.addEventListener('keydown', keyDownListener, false);
 window.addEventListener('keyup', keyUpListener, false);
