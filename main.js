@@ -99,32 +99,36 @@ function clearScreen(){
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 }
 
-function removeFoodObject(x, y){
-  console.log(x, y);
-  food.find(foodObject => {
-   return foodObject.cellX === x * maze.tileWidth && foodObject.cellY === y * maze.tileHeight
-  })
+function isPacmanInTile(row, column) {
+  return (pacman.x >= maze.LogicalRepresentation[row][column].x &&
+          pacman.x <= maze.LogicalRepresentation[row][column].x + maze.tileWidth) &&
+         (pacman.y >= maze.LogicalRepresentation[row][column].y &&
+          pacman.y <= maze.LogicalRepresentation[row][column].y + maze.tileHeight)
 }
 
 function handleFoodCollisionTasks(){
   for(let row = 0; row < maze.mapHeight; row++){
     for(let column = 0; column < maze.mapWidth; column++){
-     if ((pacman.x >= maze.LogicalRepresentation[row][column].x &&
-         pacman.x <= maze.LogicalRepresentation[row][column].x + maze.tileWidth) &&
-         (pacman.y >= maze.LogicalRepresentation[row][column].y &&
-         pacman.y <= maze.LogicalRepresentation[row][column].y + maze.tileHeight) &&
+     if (isPacmanInTile(row, column) &&
          maze.LogicalRepresentation[row][column].hasOwnProperty('radius')) {
-         console.log('food collision');
          // clean visual rep
          maze.changeValue(row, column, 'visual', 0); 
          // initiate logical value to 0
          maze.changeValue(row, column, 'logical', 0);
-         console.log(maze.VisualRepresentation);
      }   
     }   
   } 
 }
 
+function updatePacmanPositionInMaze() {
+  for(let row = 0; row < maze.mapHeight; row++){
+    for(let column = 0; column < maze.mapWidth; column++){
+      if(isPacmanInTile(row, column)){
+        console.log(row, column); 
+      }
+    }   
+  }
+}
 
 function gameLoop() {
   clearScreen();
@@ -165,8 +169,9 @@ function gameLoop() {
   maze.drawMaze();
   // draw food at each 0 value in the array
   drawFood();
+  //updatePacmanPositionInMaze();
   //draw pacman
-  drawFrame(loader.getImage('pacman'),CYCLE_LOOP[currentLoopIndex], currentDirection, pacman.x, pacman.y);
+  drawFrame(loader.getImage('pacman'),CYCLE_LOOP[currentLoopIndex], currentDirection, pacman.x - WIDTH/2, pacman.y - HEIGHT/2);
   handleFoodCollisionTasks();
   window.requestAnimationFrame(gameLoop);
 }

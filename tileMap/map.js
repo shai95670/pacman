@@ -11,9 +11,9 @@ export default class MazeMap {
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
             [1, 0, 1, 1, 2, 2, 2, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1],
-            [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1],
-            [1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 2, 2, 2, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1],
+            [1, 0, 0, 0, 2, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1],
+            [1, 0, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
             [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1],
             [1, 0, 0, 0, 2, 2, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
             [1, 0, 0, 0, 2, 2, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
@@ -58,12 +58,12 @@ export default class MazeMap {
           for(let column = 0; column < this.mapWidth; column++){
             switch(this.VisualRepresentation[row][column]){  
                 case 1:
-                  this.twoDimensionalCanvas.strokeStyle = "purple";
+                  this.twoDimensionalCanvas.fillStyle = "purple";
                       break;
                 default:
-                  this.twoDimensionalCanvas.strokeStyle = "black";
+                  this.twoDimensionalCanvas.fillStyle = "black";
             }
-            this.twoDimensionalCanvas.strokeRect(column*this.tileWidth, row*this.tileHeight, this.tileWidth, this.tileHeight);
+            this.twoDimensionalCanvas.fillRect(column*this.tileWidth, row*this.tileHeight, this.tileWidth, this.tileHeight);
             
         }
       }

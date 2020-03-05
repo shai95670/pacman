@@ -3,8 +3,8 @@ export default class Pacman {
         this.energized = false;
         this.life = 3;
         //TODO: compute the sprites center coordinate
-        this.x = 16;
-        this.y = 16;
+        this.x = 24;
+        this.y = 24;
         this.movementSpeed = 2;
     }
 }
