@@ -32,15 +32,16 @@ const WIDTH = 16;
 const HEIGHT = 16;
 const SCALED_WIDTH = SCALE * WIDTH;
 const SCALED_HEIGHT = SCALE * HEIGHT;
-const CYCLE_LOOP = [0, 1, 2];
+const PACMAN_SPRITES_XS = [0, 1, 2];
 const CANVAS_WIDTH = canvas.width;
 const CANVAS_HEIGHT = canvas.height;
 
-let currentLoopIndex = 0;
+let currentSpriteIndex = 0;
 let frameCount = 0;
 let pacman = new Pacman();
 let loader = new Loader();
 let maze = new MazeMap(ctx);
+let hasMoved = false;
 
 /*
  0 - right
@@ -113,7 +114,7 @@ function isPacmanInTile(row, column) {
     pacman.x >= maze.LogicalRepresentation[row][column].x &&
     pacman.x <= maze.LogicalRepresentation[row][column].x + maze.tileWidth &&
     pacman.y >= maze.LogicalRepresentation[row][column].y &&
-      pacman.y <= maze.LogicalRepresentation[row][column].y + maze.tileHeight
+    pacman.y <= maze.LogicalRepresentation[row][column].y + maze.tileHeight
   );
 }
 
@@ -127,42 +128,37 @@ function handleFoodCollisionTasks() {
         // clean visual rep
         maze.changeValue(row, column, "visual", 0);
         // initiate logical value to 0
-        maze.changeValue(row, column, "logical", 0);
-        console.log(maze.LogicalRepresentation);
-        console.log(maze.VisualRepresentation);
-      }
-    }
-  }
-}
-
-// when the pacman is in a tile,
-// get that tiles coordinates
-function getPacmanPositionInMaze() {
-  for (let row = 0; row < maze.mapHeight; row++) {
-    for (let column = 0; column < maze.mapWidth; column++) {
-      if (isPacmanInTile(row, column)) {
-        return {row:row, column:column};
+        maze.changeValue(row, column, "logical", {
+          value: 0,
+          x: column * maze.tileWidth,
+          y: row * maze.tileHeight,
+          width: maze.tileWidth,
+          height: maze.tileHeight
+        });
       }
     }
   }
 }
 
 function handleCollisionWithMaze() {
- let pacmansTileRow = getPacmanPositionInMaze().row;
- let pacmansTileColumn = getPacmanPositionInMaze().column;
- 
- // check for all four next directions
- if (maze.getValue(pacmansTileRow + 1, pacmansTileColumn, 'logical').value === 1 ||
-     maze.getValue(pacmansTileRow - 1, pacmansTileColumn, 'logical').value === 1||
-     maze.getValue(pacmansTileRow, pacmansTileColumn + 1, 'logical').value === 1||
-     maze.getValue(pacmansTileRow, pacmansTileColumn - 1, 'logical').value === 1) {
-     console.log('colission');  
- }
+  for (let row = 0; row < maze.mapHeight; row++) {
+    for (let column = 0; column < maze.mapWidth; column++) {
+      // check for all four next directions
+      if (
+        isPacmanInTile(row, column) &&
+        (maze.getValue(row + 1, column, "logical").value === 1 ||
+          maze.getValue(row - 1, column, "logical").value === 1 ||
+          maze.getValue(row, column + 1, "logical").value === 1 ||
+          maze.getValue(row, column - 1, "logical").value === 1)
+      ) {
+        //console.log('hi');
+      }
+    }
+  }
 }
 
-function gameLoop() {
-  clearScreen();
-  let hasMoved = false;
+function handleKeyPresses() {
+  hasMoved = false;
   if (keyPresses.w) {
     // up
     pacman.y -= pacman.movementSpeed;
@@ -184,17 +180,29 @@ function gameLoop() {
     currentDirection = 3;
     hasMoved = true;
   }
+}
 
-  if (hasMoved) {
+function incrementPacManSpriteIndex() {
     frameCount++;
+    console.log(frameCount);
     if (frameCount >= 12) {
       frameCount = 0;
-      currentLoopIndex++;
-      if (currentLoopIndex >= CYCLE_LOOP.length) {
-        currentLoopIndex = 0;
+      currentSpriteIndex++;
+      if (currentSpriteIndex >= PACMAN_SPRITES_XS.length) {
+        currentSpriteIndex = 0;
       }
     }
+}
+
+function gameLoop() {
+  clearScreen();
+  handleKeyPresses()
+  
+  // every 12 frames draw a pac man sprite
+  if (hasMoved) {
+    incrementPacManSpriteIndex();
   }
+
   // draw maze
   maze.drawMaze();
   // draw food at each 0 value in the array
@@ -202,13 +210,13 @@ function gameLoop() {
   //draw pacman
   drawFrame(
     loader.getImage("pacman"),
-    CYCLE_LOOP[currentLoopIndex],
+    PACMAN_SPRITES_XS[currentSpriteIndex],
     currentDirection,
     pacman.x - WIDTH / 2,
     pacman.y - HEIGHT / 2
   );
-  //handleCollisionWithMaze();
   handleFoodCollisionTasks();
+  handleCollisionWithMaze();
   window.requestAnimationFrame(gameLoop);
 }
 

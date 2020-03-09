@@ -729,7 +729,7 @@ export default class MazeMap {
     if (layer === "visual") {
       this.VisualRepresentation[row][column] = value;
     } else if (layer === "logical") {
-      this.LogicalRepresentation[row][column].value = value;
+      this.LogicalRepresentation[row][column] = value;
     }
   }
 }
