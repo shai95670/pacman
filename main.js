@@ -118,6 +118,16 @@ function isPacmanInTile(row, column) {
   );
 }
 
+function getCurrentPacManTile(){
+  for (let row = 0; row < maze.mapHeight; row++) {
+    for (let column = 0; column < maze.mapWidth; column++) {
+      if (isPacmanInTile(row, column)) {
+        console.log(row, column);
+      }
+    }
+  } 
+}
+
 function handleFoodCollisionTasks() {
   for (let row = 0; row < maze.mapHeight; row++) {
     for (let column = 0; column < maze.mapWidth; column++) {
@@ -140,22 +150,35 @@ function handleFoodCollisionTasks() {
   }
 }
 
-function handleCollisionWithMaze() {
+function isCollisionWithMaze(direction) {
   for (let row = 0; row < maze.mapHeight; row++) {
     for (let column = 0; column < maze.mapWidth; column++) {
       // check for all four next directions
-      if (
-        isPacmanInTile(row, column) &&
-        (maze.getValue(row + 1, column, "logical").value === 1 ||
-          maze.getValue(row - 1, column, "logical").value === 1 ||
-          maze.getValue(row, column + 1, "logical").value === 1 ||
-          maze.getValue(row, column - 1, "logical").value === 1)
-      ) {
-        //console.log('hi');
+      if(isPacmanInTile(row, column)){
+          if(maze.getValue(row + 1, column, "logical").value === 1 ||
+             maze.getValue(row - 1, column, "logical").value === 1 ||
+             maze.getValue(row, column + 1, "logical").value === 1 ||
+             maze.getValue(row, column - 1, "logical").value === 1){
+             console.log('maze collision');
+          }     
       }
     }
   }
 }
+
+function isPassableTile(){
+  for (let row = 0; row < maze.mapHeight; row++) {
+    for (let column = 0; column < maze.mapWidth; column++) {
+      // check for all four next directions
+      if(isPacmanInTile(row, column)){
+        if(maze.getValue(row, column, "logical").value === 0){
+            console.log('can pass');
+        }     
+      }
+    }
+  }
+}
+
 
 function handleKeyPresses() {
   hasMoved = false;
@@ -184,7 +207,7 @@ function handleKeyPresses() {
 
 function incrementPacManSpriteIndex() {
     frameCount++;
-    console.log(frameCount);
+    //console.log(frameCount);
     if (frameCount >= 12) {
       frameCount = 0;
       currentSpriteIndex++;
@@ -196,9 +219,9 @@ function incrementPacManSpriteIndex() {
 
 function gameLoop() {
   clearScreen();
-  handleKeyPresses()
+  handleKeyPresses();
   
-  // every 12 frames draw a pac man sprite
+  // every 12 frames draw a pacman sprite
   if (hasMoved) {
     incrementPacManSpriteIndex();
   }
@@ -216,7 +239,9 @@ function gameLoop() {
     pacman.y - HEIGHT / 2
   );
   handleFoodCollisionTasks();
-  handleCollisionWithMaze();
+  isCollisionWithMaze();
+  isPassableTile()
+  //getCurrentPacManTile();
   window.requestAnimationFrame(gameLoop);
 }
 
