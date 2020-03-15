@@ -110,6 +110,9 @@ function clearScreen() {
 }
 
 function isPacmanInTile(row, column) {
+  if (row === 0 || column === 0) {
+    return;
+  }
   return (
     pacman.x >= maze.LogicalRepresentation[row][column].x &&
     pacman.x <= maze.LogicalRepresentation[row][column].x + maze.tileWidth &&
@@ -150,17 +153,38 @@ function handleFoodCollisionTasks() {
   }
 }
 
+function isMazeCollisionDown(row, column){
+  return maze.getValue(row + 1, column, "logical").value === 1;
+}
+
+function isMazeCollisionUp(row, column){
+  return maze.getValue(row - 1, column, "logical").value === 1;
+}
+
+function isMazeCollisionLeft(row, column){
+  return maze.getValue(row, column - 1, "logical").value === 1; 
+}
+
+function isMazeCollisionRight(row, column){
+  return maze.getValue(row, column + 1, "logical").value === 1; 
+}
+
 function isCollisionWithMaze(direction) {
   for (let row = 0; row < maze.mapHeight; row++) {
     for (let column = 0; column < maze.mapWidth; column++) {
       // check for all four next directions
       if(isPacmanInTile(row, column)){
-          if(maze.getValue(row + 1, column, "logical").value === 1 ||
-             maze.getValue(row - 1, column, "logical").value === 1 ||
-             maze.getValue(row, column + 1, "logical").value === 1 ||
-             maze.getValue(row, column - 1, "logical").value === 1){
-             console.log('maze collision');
-          }     
+        if (direction === 2 && isMazeCollisionUp(row, column)) {
+          return true;  
+        } else if(direction === 0 && isMazeCollisionRight(row, column)) {
+          return true;
+        } else if(direction === 1 && isMazeCollisionLeft(row, column)) {
+          return true;
+        } else if(direction === 3 && isMazeCollisionDown(row, column)) {
+          return true;
+        } else {
+          return false;
+        }  
       }
     }
   }
@@ -220,7 +244,6 @@ function incrementPacManSpriteIndex() {
 function gameLoop() {
   clearScreen();
   handleKeyPresses();
-  
   // every 12 frames draw a pacman sprite
   if (hasMoved) {
     incrementPacManSpriteIndex();
@@ -238,10 +261,18 @@ function gameLoop() {
     pacman.x - WIDTH / 2,
     pacman.y - HEIGHT / 2
   );
+  //draw red ghost
+  //draw pink ghost
+  //draw blue ghost
+  //draw orange ghost
   handleFoodCollisionTasks();
-  isCollisionWithMaze();
-  isPassableTile()
+  //isPassableTile()
   //getCurrentPacManTile();
+  if(!isCollisionWithMaze(currentDirection)){
+    pacman.movementSpeed = 2;
+  } else if(isCollisionWithMaze(currentDirection)) {
+    pacman.movementSpeed = 0;
+  }
   window.requestAnimationFrame(gameLoop);
 }
 
